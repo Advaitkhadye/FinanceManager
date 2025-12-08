@@ -10,6 +10,7 @@ import { LayoutDashboard } from "lucide-react";
 
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { API_URL } from "@/config";
 
 export default function Home() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -24,7 +25,7 @@ export default function Home() {
     const fetchTransactions = async () => {
       try {
         setIsLoading(true);
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
         const response = await fetch(`${API_URL}/transactions/`);
         if (response.ok) {
           const data = await response.json();

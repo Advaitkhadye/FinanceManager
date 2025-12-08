@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import { Calendar, Tag, FileText, Trash2, Edit2, X, Check } from "lucide-react";
 
@@ -20,7 +21,7 @@ export default function TransactionList({ transactions, onTransactionChange }: {
     setLoadingId(id);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
       const response = await fetch(`${API_URL}/transactions/${id}`, { method: "DELETE" });
       if (response.ok) {
         onTransactionChange();
@@ -47,7 +48,7 @@ export default function TransactionList({ transactions, onTransactionChange }: {
     setLoadingId(editingId);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
       const response = await fetch(`${API_URL}/transactions/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

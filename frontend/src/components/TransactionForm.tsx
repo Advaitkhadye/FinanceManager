@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "../config";
 
 import { useState } from "react";
 import { PlusCircle, DollarSign, Tag, FileText } from "lucide-react";
@@ -9,7 +10,7 @@ export default function TransactionForm({ onTransactionAdded }: { onTransactionA
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

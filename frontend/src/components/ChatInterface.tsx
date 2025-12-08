@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "../config";
 
 import { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, Sparkles } from "lucide-react";
@@ -29,7 +30,6 @@ export default function ChatInterface() {
         setLoading(true);
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
             const response = await fetch(`${API_URL}/chat/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

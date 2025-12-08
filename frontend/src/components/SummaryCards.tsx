@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "../config";
 
 import { DollarSign, TrendingUp, TrendingDown, Target, Edit2, Loader2, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -21,7 +22,7 @@ export default function SummaryCards({ transactions }: { transactions: Transacti
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
                 const response = await fetch(`${API_URL}/profile/`);
                 if (response.ok) {
                     const data = await response.json();
@@ -68,7 +69,7 @@ export default function SummaryCards({ transactions }: { transactions: Transacti
         const newInitialBalance = newTotalBalance + totalExpenses;
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
             const response = await fetch(`${API_URL}/profile/`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
