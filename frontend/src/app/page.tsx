@@ -5,36 +5,36 @@ import { ArrowRight, CheckCircle2, Shield, Zap, LayoutDashboard } from "lucide-r
 
 export default function LandingPage() {
     return (
-        <div className="min-h-screen bg-[#1a1b1e] text-white font-sans selection:bg-blue-500/30">
+        <div className="min-h-screen bg-[#1a1b1e] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden w-full relative">
             {/* Navbar */}
-            <nav className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <nav className="fixed top-0 left-0 right-0 z-50 h-20 bg-[#1a1b1e]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 md:px-6 w-full max-w-[100vw] overflow-hidden">
                 <div className="flex items-center gap-2">
-                    <div className="p-2 bg-blue-600 rounded-lg">
+                    <div className="p-2 bg-blue-600 rounded-lg shrink-0">
                         <LayoutDashboard className="w-5 h-5 text-white" />
                     </div>
-                    <span className="font-bold text-xl tracking-tight">MoneyManager</span>
+                    <span className="font-bold text-xl tracking-tight whitespace-nowrap">FinanceManager</span>
                 </div>
                 <Link
                     href="/dashboard"
-                    className="bg-white text-black px-5 py-2.5 rounded-full font-medium text-sm hover:bg-gray-100 transition-colors"
+                    className="hidden md:block bg-white text-black px-5 py-2.5 rounded-full font-medium text-sm hover:bg-gray-100 transition-colors shrink-0"
                 >
                     Get Started
                 </Link>
             </nav>
 
             {/* Hero Section */}
-            <main className="max-w-7xl mx-auto px-6 pt-20 pb-32">
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
-                    <div className="space-y-8">
-                        <h1 className="text-5xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
+            <main className="max-w-7xl mx-auto px-6 pt-32 pb-32 w-full overflow-hidden">
+                <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
+                    <div className="space-y-8 flex flex-col items-center lg:items-start text-center lg:text-left w-full">
+                        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.1] max-w-2xl mx-auto lg:mx-0">
                             Master Your <br />
                             <span className="text-blue-500">Finances</span> with <br />
                             AI Insights
                         </h1>
-                        <p className="text-gray-400 text-lg lg:text-xl max-w-lg leading-relaxed">
+                        <p className="text-gray-400 text-lg lg:text-xl max-w-lg leading-relaxed mx-auto lg:mx-0">
                             Track, Analyze, and Optimize Your Wealth Efficiently. Stop guessing and start growing your net worth today.
                         </p>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 justify-center lg:justify-start">
                             <Link
                                 href="/dashboard"
                                 className="bg-blue-600 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-blue-700 transition-all flex items-center gap-2 group"
@@ -46,7 +46,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Hero Image / Chart Representation */}
-                    <div className="relative flex justify-center items-center">
+                    <div className="relative hidden lg:flex justify-center items-center">
                         <div className="absolute -inset-4 bg-blue-500/20 blur-3xl rounded-full opacity-50"></div>
                         <div className="relative p-8 bg-gray-800/50 rounded-2xl border border-gray-700 backdrop-blur-sm shadow-2xl">
                             {/* Chart Container */}
@@ -95,43 +95,43 @@ export default function LandingPage() {
                 </div>
 
                 {/* Features Section */}
-                <div className="mt-32 grid md:grid-cols-3 gap-6">
-                    <div className="bg-white/5 p-8 rounded-2xl border border-white/10 hover:border-blue-500/50 transition-colors group">
+                <div className="mt-32 grid md:grid-cols-3 gap-6 w-full justify-items-center md:justify-items-start">
+                    <div className="bg-white/5 p-8 rounded-2xl border border-white/10 hover:border-blue-500/50 transition-colors group flex flex-col items-center text-center md:items-start md:text-left max-w-[240px] md:max-w-none mx-auto md:mx-0 w-full">
                         <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-500 transition-colors">
                             <Zap className="w-6 h-6 text-blue-400 group-hover:text-white" />
                         </div>
                         <h3 className="text-xl font-semibold mb-3">Smart Tracking</h3>
-                        <p className="text-gray-400 leading-relaxed">
-                            Track spending automatically. Clean and intuitive interface that just works.
+                        <p className="text-gray-400 leading-relaxed text-sm">
+                            Track spending automatically. Clean and intuitive interface.
                         </p>
                     </div>
 
-                    <div className="bg-white/5 p-8 rounded-2xl border border-white/10 hover:border-blue-500/50 transition-colors group">
+                    <div className="bg-white/5 p-8 rounded-2xl border border-white/10 hover:border-blue-500/50 transition-colors group flex flex-col items-center text-center md:items-start md:text-left max-w-[240px] md:max-w-none mx-auto md:mx-0 w-full">
                         <div className="w-12 h-12 bg-violet-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-violet-500 transition-colors">
                             <CheckCircle2 className="w-6 h-6 text-violet-400 group-hover:text-white" />
                         </div>
-                        <h3 className="text-xl font-semibold mb-3">AI Financial Advisor</h3>
-                        <p className="text-gray-400 leading-relaxed">
-                            Get real-time advice powered by Gemini 2.0. It's like having a CFO in your pocket.
+                        <h3 className="text-xl font-semibold mb-3">AI Advisor</h3>
+                        <p className="text-gray-400 leading-relaxed text-sm">
+                            Real-time advice powered by Gemini 2.0.
                         </p>
                     </div>
 
-                    <div className="bg-white/5 p-8 rounded-2xl border border-white/10 hover:border-blue-500/50 transition-colors group">
+                    <div className="bg-white/5 p-8 rounded-2xl border border-white/10 hover:border-blue-500/50 transition-colors group flex flex-col items-center text-center md:items-start md:text-left max-w-[240px] md:max-w-none mx-auto md:mx-0 w-full">
                         <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-emerald-500 transition-colors">
                             <Shield className="w-6 h-6 text-emerald-400 group-hover:text-white" />
                         </div>
-                        <h3 className="text-xl font-semibold mb-3">Secure & Private</h3>
-                        <p className="text-gray-400 leading-relaxed">
-                            Your financial data is yours. We prioritize security and privacy above all else.
+                        <h3 className="text-xl font-semibold mb-3">Secure</h3>
+                        <p className="text-gray-400 leading-relaxed text-sm">
+                            Your financial data is yours. Private & Secure.
                         </p>
                     </div>
                 </div>
             </main>
 
             {/* Footer */}
-            <footer className="border-t border-white/10 py-12">
+            <footer className="border-t border-white/10 py-12 w-full">
                 <div className="max-w-7xl mx-auto px-6 flex justify-center text-gray-500 text-sm">
-                    © 2025 MoneyManager. Built with Next.js & Gemini.
+                    © 2025 FinanceManager.
                 </div>
             </footer>
         </div>

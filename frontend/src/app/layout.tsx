@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MoneyManager - Master Your Finances",
+  title: "FinanceManager - Master Your Finances",
   description: "Track, Analyze, and Optimize your wealth with AI insights.",
 };
 
@@ -26,6 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         {children}
       </body>

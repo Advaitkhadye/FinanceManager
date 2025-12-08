@@ -8,7 +8,7 @@ print(f"Key found: {bool(key)}")
 
 try:
     genai.configure(api_key=key)
-    model = genai.GenerativeModel('gemini-2.0-flash')
+    model = genai.GenerativeModel('gemini-flash-latest')
     response = model.generate_content("Hello")
     print(f"Response: {response.text}")
 except Exception as e:

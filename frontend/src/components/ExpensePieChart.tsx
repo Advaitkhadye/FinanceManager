@@ -29,9 +29,9 @@ export default function ExpensePieChart({ transactions }: { transactions: Transa
     }
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full flex flex-col">
             <h2 className="text-lg font-semibold mb-4 text-gray-800">Expenses by Category</h2>
-            <div className="h-64">
+            <div className="flex-1 min-h-[250px]">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie

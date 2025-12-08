@@ -24,7 +24,8 @@ export default function Home() {
     const fetchTransactions = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("http://localhost:8000/transactions/");
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const response = await fetch(`${API_URL}/transactions/`);
         if (response.ok) {
           const data = await response.json();
           setTransactions(data.reverse());
@@ -39,16 +40,16 @@ export default function Home() {
   }, [refreshTrigger]);
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
+    <main className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans w-full overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-10 flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="p-3 bg-blue-600 rounded-xl shadow-lg shadow-blue-200">
-              <LayoutDashboard className="w-8 h-8 text-white" />
+        <header className="mb-10 flex flex-col md:flex-row items-center gap-3 md:gap-4 text-center md:text-left">
+          <Link href="/" className="flex flex-col md:flex-row items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="p-2 md:p-3 bg-blue-600 rounded-xl shadow-lg shadow-blue-200">
+              <LayoutDashboard className="w-6 h-6 md:w-8 md:h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                MoneyManager
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
+                FinanceManager
               </h1>
               <p className="text-gray-500">Track, Analyze, and Optimize your wealth</p>
             </div>
@@ -74,13 +75,13 @@ export default function Home() {
                 <TransactionList transactions={transactions} onTransactionChange={handleTransactionAdded} />
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-8 h-full">
                 <ExpensePieChart transactions={transactions} />
-                <ChatInterface />
               </div>
             </div>
           </>
         )}
+        <ChatInterface />
       </div>
     </main>
   );

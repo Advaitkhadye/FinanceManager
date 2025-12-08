@@ -10,7 +10,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,8 +37,11 @@ def predict_category(description: str) -> str:
         
         Return ONLY the category name.
         """
-        response = model.generate_content(prompt)
-        return response.text.strip()
+        response = generate_content_with_retry(model, prompt)
+        if response and response.text:
+             return response.text.strip()
+        else:
+             return "Miscellaneous"
     except Exception:
         return "Miscellaneous"
 
@@ -87,9 +90,34 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import time
+import random
+from google.api_core import exceptions
+
 # Configure Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-2.0-flash')
+model = genai.GenerativeModel('gemini-flash-latest')
+
+def generate_content_with_retry(model, prompt, retries=3, initial_delay=2):
+    """
+    Generates content with retry mechanism for rate limits (429).
+    """
+    delay = initial_delay
+    for attempt in range(retries):
+        try:
+            return model.generate_content(prompt)
+        except exceptions.ResourceExhausted:
+            if attempt < retries - 1:
+                sleep_time = delay + random.uniform(0, 1)
+                print(f"Rate limit hit. Retrying in {sleep_time:.2f}s...")
+                time.sleep(sleep_time)
+                delay *= 2  # Exponential backoff
+            else:
+                raise
+        except Exception as e:
+             # For other exceptions we might not want to retry, or handle differently
+             raise e
+    return None
 
 class ChatRequest(BaseModel):
     message: str
@@ -97,9 +125,38 @@ class ChatRequest(BaseModel):
 @app.post("/chat/")
 def chat(request: ChatRequest):
     try:
-        chat = model.start_chat(history=[])
-        response = chat.send_message(f"You are a helpful financial advisor. Answer this question: {request.message}")
-        return {"response": response.text}
+        # Retry logic for chat is slightly different as it involves starting chat object
+        # but the main failure point is send_message.
+        # We will create a fresh chat session for simplicity in this stateless endpoint context
+        # or reuse logic if we were maintaining state. 
+        # Here we just wrap the send_message call.
+        
+        retries = 3
+        delay = 2
+        
+        start_chat_response = None
+        
+        for attempt in range(retries):
+            try:
+                chat_session = model.start_chat(history=[])
+                start_chat_response = chat_session.send_message(f"You are a helpful financial advisor. Answer this question: {request.message}")
+                break
+            except exceptions.ResourceExhausted:
+                 if attempt < retries - 1:
+                    sleep_time = delay + random.uniform(0, 1)
+                    print(f"Chat Rate limit hit. Retrying in {sleep_time:.2f}s...")
+                    time.sleep(sleep_time)
+                    delay *= 2
+                 else:
+                    return {"response": "I'm currently receiving too many requests. Please try again in a minute."}
+            except Exception as e:
+                return {"response": f"Error: {str(e)}. Please check your API key."}
+
+        if start_chat_response:
+             return {"response": start_chat_response.text}
+        
+        return {"response": "Service unavailable. Please try again later."}
+
     except Exception as e:
         return {"response": f"Error: {str(e)}. Please check your API key."}
 

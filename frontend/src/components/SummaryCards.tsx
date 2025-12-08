@@ -21,7 +21,8 @@ export default function SummaryCards({ transactions }: { transactions: Transacti
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await fetch("http://localhost:8000/profile/");
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+                const response = await fetch(`${API_URL}/profile/`);
                 if (response.ok) {
                     const data = await response.json();
                     setInitialBalance(data.initial_balance);
@@ -67,7 +68,8 @@ export default function SummaryCards({ transactions }: { transactions: Transacti
         const newInitialBalance = newTotalBalance + totalExpenses;
 
         try {
-            const response = await fetch("http://localhost:8000/profile/", {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const response = await fetch(`${API_URL}/profile/`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ initial_balance: newInitialBalance }),
@@ -113,7 +115,7 @@ export default function SummaryCards({ transactions }: { transactions: Transacti
                 ) : (
                     <div className="flex items-center gap-3">
                         <p className="text-3xl font-bold text-gray-900 tracking-tight">${balance.toFixed(2)}</p>
-                        <button onClick={startEditingBalance} className="opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-100 rounded-full text-gray-400 hover:text-blue-600">
+                        <button onClick={startEditingBalance} className="p-1.5 hover:bg-gray-100 rounded-full text-gray-400 hover:text-blue-600 transition-colors">
                             <Edit2 className="w-4 h-4" />
                         </button>
                     </div>

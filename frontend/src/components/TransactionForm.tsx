@@ -9,11 +9,15 @@ export default function TransactionForm({ onTransactionAdded }: { onTransactionA
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("API URL:", API_URL);
     setLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     try {
-      const response = await fetch("/api/transactions/", {
+      const response = await fetch(`${API_URL}/transactions/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,10 +35,13 @@ export default function TransactionForm({ onTransactionAdded }: { onTransactionA
         setDescription("");
         onTransactionAdded();
       } else {
-        console.error("Failed to add transaction");
+        const errorText = await response.text();
+        console.error("Failed to add transaction:", response.status, response.statusText, errorText);
+        alert(`Failed to add transaction: ${response.status} ${response.statusText}\n${errorText}`);
       }
     } catch (error) {
       console.error("Error:", error);
+      alert(`Error adding transaction: ${error}`);
     } finally {
       setLoading(false);
     }
