@@ -14,6 +14,15 @@ Ensure your backend is running and accessible. If you are deploying the backend 
 
 Example Backend URL: `https://finance-manager-backend.onrender.com`
 
+### Backend Environment Variables
+
+For the AI features to work, you must add the following environment variable to your **Backend** deployment (Vercel or Render):
+
+-   **Name**: `GEMINI_API_KEY`
+-   **Value**: `Your Actual Gemini API Key` (Starts with `AIza...`)
+
+
+
 > [!NOTE]
 > If you are deploying the backend as a Serverless Function on Vercel along with the frontend, your Backend URL will be the same as your Frontend URL, but this usually requires placing backend code in `api/` or configuring `vercel.json` rewrites. **Based on your project structure, it seems you are treating them as separate deployments.**
 

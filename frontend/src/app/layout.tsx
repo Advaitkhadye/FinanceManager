@@ -14,7 +14,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "FinanceManager - Master Your Finances",
-  description: "Track, Analyze, and Optimize your wealth with AI insights.",
+  description: "Track, Analyze, and Optimize your wealth with Smart insights.",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

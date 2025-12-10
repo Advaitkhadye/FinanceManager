@@ -10,7 +10,7 @@ import { LayoutDashboard } from "lucide-react";
 
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
-import { API_URL } from "@/config";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function Home() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -26,7 +26,7 @@ export default function Home() {
       try {
         setIsLoading(true);
 
-        const response = await fetch(`${API_URL}/transactions/`);
+        const response = await authenticatedFetch(`/transactions/`);
         if (response.ok) {
           const data = await response.json();
           setTransactions(data.reverse());
@@ -43,10 +43,10 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans w-full overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-10 flex flex-col md:flex-row items-center gap-3 md:gap-4 text-center md:text-left">
+        <header className="mb-10 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 text-center md:text-left">
           <Link href="/" className="flex flex-col md:flex-row items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="p-2 md:p-3 bg-blue-600 rounded-xl shadow-lg shadow-blue-200">
-              <LayoutDashboard className="w-6 h-6 md:w-8 md:h-8 text-white" />
+            <div className="w-10 h-10 md:w-12 md:h-12 relative rounded-xl shadow-lg shadow-blue-200 overflow-hidden">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
@@ -54,6 +54,10 @@ export default function Home() {
               </h1>
               <p className="text-gray-500">Track, Analyze, and Optimize your wealth</p>
             </div>
+          </Link>
+
+          <Link href="/" className="bg-black text-white border border-transparent px-5 py-2.5 rounded-full font-medium text-sm hover:bg-gray-900 transition-colors flex items-center gap-2 shadow-sm">
+            <span>Home</span>
           </Link>
         </header>
 

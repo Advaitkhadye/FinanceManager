@@ -1,5 +1,5 @@
 "use client";
-import { API_URL } from "../config";
+import { authenticatedFetch } from "../lib/api";
 
 import { DollarSign, TrendingUp, TrendingDown, Target, Edit2, Loader2, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -23,7 +23,7 @@ export default function SummaryCards({ transactions }: { transactions: Transacti
         const fetchProfile = async () => {
             try {
 
-                const response = await fetch(`${API_URL}/profile/`);
+                const response = await authenticatedFetch(`/profile/`);
                 if (response.ok) {
                     const data = await response.json();
                     setInitialBalance(data.initial_balance);
@@ -70,7 +70,7 @@ export default function SummaryCards({ transactions }: { transactions: Transacti
 
         try {
 
-            const response = await fetch(`${API_URL}/profile/`, {
+            const response = await authenticatedFetch(`/profile/`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ initial_balance: newInitialBalance }),

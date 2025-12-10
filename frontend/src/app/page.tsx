@@ -1,25 +1,82 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Shield, Zap, LayoutDashboard } from "lucide-react";
+import { ArrowRight, CheckCircle2, Shield, Zap, LayoutDashboard, LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
+    const [user, setUser] = useState<any>(null);
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
+        setUser(null);
+        router.refresh();
+    };
+
+    useEffect(() => {
+        const getUser = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                setUser(session?.user ?? null);
+            } catch (error) {
+                console.warn("Auth check failed:", error);
+                setUser(null);
+            }
+        };
+        getUser();
+    }, []);
+
     return (
         <div className="min-h-screen bg-[#1a1b1e] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden w-full relative">
             {/* Navbar */}
             <nav className="fixed top-0 left-0 right-0 z-50 h-20 bg-[#1a1b1e]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 md:px-6 w-full max-w-[100vw] overflow-hidden">
                 <div className="flex items-center gap-2">
-                    <div className="p-2 bg-blue-600 rounded-lg shrink-0">
-                        <LayoutDashboard className="w-5 h-5 text-white" />
+                    <div className="w-8 h-8 relative rounded-lg overflow-hidden">
+                        <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
                     </div>
                     <span className="font-bold text-xl tracking-tight whitespace-nowrap">FinanceManager</span>
                 </div>
-                <Link
-                    href="/dashboard"
-                    className="hidden md:block bg-white text-black px-5 py-2.5 rounded-full font-medium text-sm hover:bg-gray-100 transition-colors shrink-0"
-                >
-                    Get Started
-                </Link>
+                <div className="flex items-center gap-4">
+                    {user ? (
+                        <>
+                            <Link
+                                href="/dashboard"
+                                className="hidden md:block bg-white text-black px-5 py-2.5 rounded-full font-medium text-sm hover:bg-gray-100 transition-colors shrink-0"
+                            >
+                                Dashboard
+                            </Link>
+                            <button
+                                onClick={handleLogout}
+                                className="bg-red-600 text-white px-5 py-2.5 rounded-full font-medium text-sm hover:bg-red-700 transition-colors shrink-0 flex items-center gap-2"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                <span>Sign Out</span>
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <Link
+                                href="/login"
+                                className="bg-white text-black px-5 py-2.5 rounded-full font-medium text-sm hover:bg-gray-100 transition-colors shrink-0"
+                            >
+                                Sign In
+                            </Link>
+                            <Link
+                                href="/login"
+                                className="hidden md:block bg-white text-black px-5 py-2.5 rounded-full font-medium text-sm hover:bg-gray-100 transition-colors shrink-0"
+                            >
+                                Get Started
+                            </Link>
+                        </>
+                    )}
+                </div>
             </nav>
 
             {/* Hero Section */}
@@ -29,17 +86,17 @@ export default function LandingPage() {
                         <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.1] max-w-2xl mx-auto lg:mx-0">
                             Master Your <br />
                             <span className="text-blue-500">Finances</span> with <br />
-                            AI Insights
+                            Smart Insights
                         </h1>
                         <p className="text-gray-400 text-lg lg:text-xl max-w-lg leading-relaxed mx-auto lg:mx-0">
                             Track, Analyze, and Optimize Your Wealth Efficiently. Stop guessing and start growing your net worth today.
                         </p>
                         <div className="flex items-center gap-4 justify-center lg:justify-start">
                             <Link
-                                href="/dashboard"
+                                href={user ? "/dashboard" : "/login"}
                                 className="bg-blue-600 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-blue-700 transition-all flex items-center gap-2 group"
                             >
-                                Get Started
+                                {user ? "Go to Dashboard" : "Get Started"}
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </div>
@@ -110,9 +167,9 @@ export default function LandingPage() {
                         <div className="w-12 h-12 bg-violet-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-violet-500 transition-colors">
                             <CheckCircle2 className="w-6 h-6 text-violet-400 group-hover:text-white" />
                         </div>
-                        <h3 className="text-xl font-semibold mb-3">AI Advisor</h3>
+                        <h3 className="text-xl font-semibold mb-3">Smart Advisor</h3>
                         <p className="text-gray-400 leading-relaxed text-sm">
-                            Real-time advice powered by Gemini 2.0.
+                            Real-time professional financial advice.
                         </p>
                     </div>
 

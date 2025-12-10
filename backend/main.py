@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 import models, schemas, database
+from auth import get_current_user
 
 models.Base.metadata.create_all(bind=database.engine)
 
@@ -25,7 +26,7 @@ def get_db():
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to AI Finance Manager API"}
+    return {"message": "Welcome to Finance Manager API"}
 
 def predict_category(description: str) -> str:
     try:
@@ -46,19 +47,21 @@ def predict_category(description: str) -> str:
         return "Miscellaneous"
 
 @app.post("/transactions/", response_model=schemas.Transaction)
-def create_transaction(transaction: schemas.TransactionCreate, db: Session = Depends(get_db)):
+def create_transaction(transaction: schemas.TransactionCreate, db: Session = Depends(get_db), user_id: str = Depends(get_current_user)):
     if not transaction.category:
         transaction.category = predict_category(transaction.description or "")
     
-    db_transaction = models.Transaction(**transaction.dict())
+    # Exclude undefined fields if any, but properly map to model
+    transaction_data = transaction.dict()
+    db_transaction = models.Transaction(**transaction_data, user_id=user_id)
     db.add(db_transaction)
     db.commit()
     db.refresh(db_transaction)
     return db_transaction
 
 @app.delete("/transactions/{transaction_id}")
-def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
-    db_transaction = db.query(models.Transaction).filter(models.Transaction.id == transaction_id).first()
+def delete_transaction(transaction_id: int, db: Session = Depends(get_db), user_id: str = Depends(get_current_user)):
+    db_transaction = db.query(models.Transaction).filter(models.Transaction.id == transaction_id, models.Transaction.user_id == user_id).first()
     if db_transaction is None:
         raise HTTPException(status_code=404, detail="Transaction not found")
     db.delete(db_transaction)
@@ -66,8 +69,8 @@ def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
     return {"message": "Transaction deleted"}
 
 @app.put("/transactions/{transaction_id}", response_model=schemas.Transaction)
-def update_transaction(transaction_id: int, transaction: schemas.TransactionCreate, db: Session = Depends(get_db)):
-    db_transaction = db.query(models.Transaction).filter(models.Transaction.id == transaction_id).first()
+def update_transaction(transaction_id: int, transaction: schemas.TransactionCreate, db: Session = Depends(get_db), user_id: str = Depends(get_current_user)):
+    db_transaction = db.query(models.Transaction).filter(models.Transaction.id == transaction_id, models.Transaction.user_id == user_id).first()
     if db_transaction is None:
         raise HTTPException(status_code=404, detail="Transaction not found")
     
@@ -79,8 +82,8 @@ def update_transaction(transaction_id: int, transaction: schemas.TransactionCrea
     return db_transaction
 
 @app.get("/transactions/", response_model=List[schemas.Transaction])
-def read_transactions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    transactions = db.query(models.Transaction).offset(skip).limit(limit).all()
+def read_transactions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user_id: str = Depends(get_current_user)):
+    transactions = db.query(models.Transaction).filter(models.Transaction.user_id == user_id).offset(skip).limit(limit).all()
     return transactions
 
 from pydantic import BaseModel
@@ -123,24 +126,54 @@ class ChatRequest(BaseModel):
     message: str
 
 @app.post("/chat/")
-def chat(request: ChatRequest):
+def chat(request: ChatRequest, db: Session = Depends(get_db), user_id: str = Depends(get_current_user)):
     try:
-        # Retry logic for chat is slightly different as it involves starting chat object
-        # but the main failure point is send_message.
-        # We will create a fresh chat session for simplicity in this stateless endpoint context
-        # or reuse logic if we were maintaining state. 
-        # Here we just wrap the send_message call.
+        # 1. Fetch recent transactions for context
+        recent_transactions = db.query(models.Transaction).filter(
+            models.Transaction.user_id == user_id
+        ).order_by(models.Transaction.date.desc()).limit(20).all()
         
+        transaction_summary = "User's Recent Transactions:\n"
+        if recent_transactions:
+            for t in recent_transactions:
+                transaction_summary += f"- {t.date}: {t.description} ({t.category}) - ${t.amount}\n"
+        else:
+            transaction_summary += "No recent transactions found.\n"
+            
+        # 2. Construct System Prompt
+        system_prompt = f"""
+        You are a helpful and professional financial advisor.
+        
+        {transaction_summary}
+        
+        User Question: {request.message}
+        
+        Answer the user's question based on the transaction data provided above.
+        - **IMPORTANT**: Provide your answer in a **bulleted point-by-point format**.
+        - If they ask about spending, calculate totals from the provided list.
+        - Be concise, friendly, and professional.
+        - Keep response to 3-4 sentences max equivalent (but in bullets).
+        """
+
         retries = 3
         delay = 2
         
-        start_chat_response = None
+        generated_text = None
         
         for attempt in range(retries):
             try:
-                chat_session = model.start_chat(history=[])
-                start_chat_response = chat_session.send_message(f"You are a helpful financial advisor. Answer this question: {request.message}")
-                break
+                # We use generate_content for single-turn Q&A with context, which is often more stable than start_chat with history for this use case
+                response = model.generate_content(system_prompt)
+                
+                # Robust check for valid response
+                if response and response.candidates and response.candidates[0].content.parts:
+                     generated_text = response.text
+                     break
+                elif response and response.prompt_feedback:
+                    # Handle safety blocks
+                     print(f"Blocked: {response.prompt_feedback}")
+                     return {"response": "I cannot answer that usage due to safety guidelines."}
+                
             except exceptions.ResourceExhausted:
                  if attempt < retries - 1:
                     sleep_time = delay + random.uniform(0, 1)
@@ -150,32 +183,36 @@ def chat(request: ChatRequest):
                  else:
                     return {"response": "I'm currently receiving too many requests. Please try again in a minute."}
             except Exception as e:
-                return {"response": f"Error: {str(e)}. Please check your API key."}
+                # Log the specific error but don't crash
+                print(f"Gemini Error: {e}")
+                if attempt == retries - 1:
+                     return {"response": "I'm having trouble processing that right now. Please try again."}
 
-        if start_chat_response:
-             return {"response": start_chat_response.text}
+        if generated_text:
+             return {"response": generated_text}
         
-        return {"response": "Service unavailable. Please try again later."}
+        return {"response": "I couldn't generate a response. Please try rephrasing your question."}
 
     except Exception as e:
-        return {"response": f"Error: {str(e)}. Please check your API key."}
+        print(f"CRITICAL CHAT ERROR: {e}")
+        return {"response": "An internal error occurred. Please try again later."}
 
 
 @app.get("/profile/", response_model=schemas.UserProfile)
-def get_user_profile(db: Session = Depends(get_db)):
-    profile = db.query(models.UserProfile).first()
+def get_user_profile(db: Session = Depends(get_db), user_id: str = Depends(get_current_user)):
+    profile = db.query(models.UserProfile).filter(models.UserProfile.user_id == user_id).first()
     if not profile:
-        profile = models.UserProfile(initial_balance=5000.0)
+        profile = models.UserProfile(initial_balance=5000.0, user_id=user_id)
         db.add(profile)
         db.commit()
         db.refresh(profile)
     return profile
 
 @app.put("/profile/", response_model=schemas.UserProfile)
-def update_user_profile(profile: schemas.UserProfileUpdate, db: Session = Depends(get_db)):
-    db_profile = db.query(models.UserProfile).first()
+def update_user_profile(profile: schemas.UserProfileUpdate, db: Session = Depends(get_db), user_id: str = Depends(get_current_user)):
+    db_profile = db.query(models.UserProfile).filter(models.UserProfile.user_id == user_id).first()
     if not db_profile:
-        db_profile = models.UserProfile(initial_balance=profile.initial_balance)
+        db_profile = models.UserProfile(initial_balance=profile.initial_balance, user_id=user_id)
         db.add(db_profile)
     else:
         db_profile.initial_balance = profile.initial_balance

@@ -1,5 +1,5 @@
 "use client";
-import { API_URL } from "../config";
+import { authenticatedFetch } from "../lib/api";
 
 import { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, Sparkles } from "lucide-react";
@@ -30,7 +30,7 @@ export default function ChatInterface() {
         setLoading(true);
 
         try {
-            const response = await fetch(`${API_URL}/chat/`, {
+            const response = await authenticatedFetch(`/chat/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: input }),
@@ -65,12 +65,12 @@ export default function ChatInterface() {
                 <div className="fixed inset-0 m-auto w-[90%] max-w-[350px] h-[500px] md:static md:w-[400px] md:h-[500px] md:mb-4 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col animate-in zoom-in-95 md:animate-in md:slide-in-from-bottom-5 duration-300 z-50 pointer-events-auto">
                     <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-violet-600 to-indigo-600 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="p-1.5 bg-white/20 rounded-lg">
-                                <Sparkles className="w-4 h-4 text-white" />
+                            <div className="w-8 h-8 relative rounded-lg overflow-hidden pb-1">
+                                <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
                             </div>
                             <div>
                                 <h2 className="text-sm font-bold text-white">Financial Advisor</h2>
-                                <p className="text-[10px] text-violet-100">Powered by Gemini Flash</p>
+
                             </div>
                         </div>
                         {/* Mobile Close Button */}

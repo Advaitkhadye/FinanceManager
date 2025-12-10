@@ -1,5 +1,5 @@
 "use client";
-import { API_URL } from "../config";
+import { authenticatedFetch } from "../lib/api";
 
 import { useState } from "react";
 import { PlusCircle, DollarSign, Tag, FileText } from "lucide-react";
@@ -14,11 +14,10 @@ export default function TransactionForm({ onTransactionAdded }: { onTransactionA
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("API URL:", API_URL);
     setLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     try {
-      const response = await fetch(`${API_URL}/transactions/`, {
+      const response = await authenticatedFetch(`/transactions/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

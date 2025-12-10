@@ -1,5 +1,5 @@
 "use client";
-import { API_URL } from "../config";
+import { authenticatedFetch } from "../lib/api";
 import { useEffect, useState } from "react";
 import { Calendar, Tag, FileText, Trash2, Edit2, X, Check } from "lucide-react";
 
@@ -22,7 +22,7 @@ export default function TransactionList({ transactions, onTransactionChange }: {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     try {
 
-      const response = await fetch(`${API_URL}/transactions/${id}`, { method: "DELETE" });
+      const response = await authenticatedFetch(`/transactions/${id}`, { method: "DELETE" });
       if (response.ok) {
         onTransactionChange();
       }
@@ -49,7 +49,7 @@ export default function TransactionList({ transactions, onTransactionChange }: {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     try {
 
-      const response = await fetch(`${API_URL}/transactions/${editingId}`, {
+      const response = await authenticatedFetch(`/transactions/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editForm),
