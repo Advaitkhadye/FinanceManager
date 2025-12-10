@@ -63,26 +63,25 @@ export default function ExpensePieChart({ transactions }: { transactions: Transa
                                     textAnchor={x > cx ? 'start' : 'end'}
                                     dominantBaseline="central"
                                     className="text-[9px] md:text-[11px] font-medium"
-                                >
-                                    {`${name.charAt(0).toUpperCase() + name.slice(1)} ${((percent || 0) * 100).toFixed(0)}%`}
+                                    {`${(name || '').charAt(0).toUpperCase() + (name || '').slice(1)} ${((percent || 0) * 100).toFixed(0)}%`}
                                 </text>
                             )}
-                            labelLine={true}
+                    labelLine={true}
                         >
-                            {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
-                        <Legend
-                            formatter={(value, entry: any) => {
-                                const percent = ((entry.payload.value / total) * 100).toFixed(0);
-                                return <span className="text-xs md:text-sm text-gray-600 ml-1">{value.toString().charAt(0).toUpperCase() + value.toString().slice(1)} ({percent}%)</span>;
-                            }}
-                        />
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
-        </div>
+                    {data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                </Pie>
+                <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
+                <Legend
+                    formatter={(value, entry: any) => {
+                        const percent = ((entry.payload.value / total) * 100).toFixed(0);
+                        return <span className="text-xs md:text-sm text-gray-600 ml-1">{value.toString().charAt(0).toUpperCase() + value.toString().slice(1)} ({percent}%)</span>;
+                    }}
+                />
+            </PieChart>
+        </ResponsiveContainer>
+            </div >
+        </div >
     );
 }
