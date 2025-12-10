@@ -1,4 +1,4 @@
-# Finance Manager
+# AI Finance Manager
 **Master your money with smart, personalized insights.**
 Finance Manager is a modern wealth tracking application designed to help you organize your finances effortlessly. Beyond just logging expenses, it uses smart AI to analyze your spending habits and offer professional financial advice in real-time.
 ##  Key Features
